@@ -623,7 +623,7 @@
 		       (when (null? applicable-primary-closures)
 		      	 (assertion-violation 'call-methods
 		      	   "called next method but no more :primary methods available"))
-		       (apply-function/sts (consume-closure applicable-primary-closures)))
+		       (apply-function/stx (consume-closure applicable-primary-closures)))
 
 		      ((null? applicable-primary-closures)
 		       ;;Raise an error if no applicable methods.
@@ -697,7 +697,7 @@
      ;;If the closure supports  rest arguments, compare only as
      ;;much classes as there are in SIGNATURE.
      ((and has-rest (> call-len len))
-      (every subclass? (take-left call-signature len) signature))
+      (every subclass? (take call-signature len) signature))
 
      ;;This method is not applicable.
      (else #f))))
