@@ -34,7 +34,8 @@
 	  receive-and-return
 	  begin0
 	  internal-body
-	  define-auxiliary-syntaxes)
+	  define-auxiliary-syntaxes
+	  take-left)
   (import (scheme base)
 	  (scheme write)
 	  (scheme cyclone pretty-print))
@@ -124,6 +125,16 @@
 
 
 ;;;; miscellaneous
+
+(define (take-left dotted k)
+  (let loop ((ret '())
+	     (dotted dotted)
+	     (k k))
+    (if (zero? k)
+	(reverse ret)
+      (loop (cons (car dotted) ret)
+	    (cdr dotted)
+	    (- k 1)))))
 
 (define (assertion-violation who message . irritants)
   (error message (cons who irritants)))

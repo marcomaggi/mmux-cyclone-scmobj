@@ -38,12 +38,10 @@
 
     <circular-list> <dotted-list> <list> <pair>
     <string> <char>
-    <vector> <bytevector> <hashtable>
-    <record> <condition>
+    <vector> <bytevector>
+    <record>
     <binary-port> <textual-port> <input-port> <output-port> <port>
-    <fixnum> <flonum> <integer> <integer-valued>
-    <rational> <rational-valued> <real> <real-valued>
-    <complex> <number>
+    <exact-integer> <rational> <real> <complex> <number>
 
     ;; Constructors.
     define-class define-generic declare-method
@@ -77,6 +75,8 @@
   (import (scheme base)
     (srfi 1)
     (srfi 69)
+    (only (srfi 132)
+	  list-sort)
     (mmux.cyclone.scmobj.helpers)
     (mmux.cyclone.scmobj.version))
   (begin
@@ -287,7 +287,6 @@
 (define-builtin-class <string>)
 (define-builtin-class <char>)
 (define-builtin-class <vector>)
-(define-builtin-class <hashtable>)
 
 (define-builtin-class <port>)
 (define-builtin-class <input-port>	<port>)
@@ -296,24 +295,13 @@
 (define-builtin-class <textual-port>	<port>)
 
 (define-builtin-class <record>)
-(define-builtin-class <condition>	<record>)
 (define-builtin-class <bytevector>)
 
 (define-builtin-class <number>)
 (define-builtin-class <complex>		<number>)
-(define-builtin-class <real-valued>	<complex>)
-(define-builtin-class <real>		<real-valued>)
-(define-builtin-class <rational-valued>	<real>)
-(define-builtin-class <flonum>		<real>)
-(define-builtin-class <rational>	<rational-valued>)
-(define-builtin-class <integer-valued>	<rational-valued>)
-(define-builtin-class <integer>		<rational>)
-(define-builtin-class <fixnum>		<integer>)
-
-;;Other possible classes that require more library loading:
-;;
-;;	<stream>	stream?
-;;
+(define-builtin-class <real>		<complex>)
+(define-builtin-class <rational>	<real>)
+(define-builtin-class <exact-integer>	<rational>)
 
 
 ;;;; class constructors
@@ -406,7 +394,7 @@
   ;;
   (if (memq key (class-slots class))
       (cons key value)
-    (syntax-violation 'make
+      (assertion-violation 'make
       "invalid slot keyword" key (class-slots class))))
 
 
@@ -415,9 +403,9 @@
 (define (subclass? c1 c2)
   ;;Return true if C2 is a subclass of C1.
   ;;
-  ;;  (subclass? <integer> <number>)  => #t
-  ;;  (subclass? <integer> <integer>) => #t
-  ;;  (subclass? <complex> <integer>) => #f
+  ;;  (subclass? <exact-integer> <number>)  => #t
+  ;;  (subclass? <exact-integer> <exact-integer>) => #t
+  ;;  (subclass? <complex> <exact-integer>) => #f
   ;;
   (cond ((eq? c1 c2) #t)
 	;;These two equalities  are here because when a  method is added
@@ -452,18 +440,12 @@
 
    ((number? value)
     ;;Order does matter here!!!
-    (cond ((fixnum?		value)	<fixnum>)
-	  ((integer?		value)	<integer>)
+    (cond ((exact-integer?	value)	<exact-integer>)
 	  ((rational?		value)	<rational>)
-	  ((integer-valued?	value)	<integer-valued>)
-	  ((rational-valued?	value)	<rational-valued>)
-	  ((flonum?		value)	<flonum>)
 	  ((real?		value)	<real>)
-	  ((real-valued?	value)	<real-valued>)
 	  ((complex?		value)	<complex>)
 	  (else			<number>)))
    ((vector?	value)		<vector>)
-   ((hashtable? value)		<hashtable>)
    ((port? value)
     ;;Order here is arbitrary.
     (cond ((input-port?		value)	<input-port>)
@@ -471,7 +453,6 @@
 	  ((binary-port?	value)	<binary-port>)
 	  ((textual-port?	value)	<textual-port>)
 	  (else				<port>)))
-   ((condition? value)		<condition>)
    ((record? value)		<record>)
    ((bytevector? value)		<bytevector>)
    ((pair? value)
@@ -583,7 +564,7 @@
 (define (make-generic-function)
   (let* ((generic-object       (create-generic-procedure))
 	 (interface-procedure  (slot-ref generic-object ':interface-procedure)))
-    (hashtable-set! *generic-functions* interface-procedure generic-object)
+    (hash-table-set! *generic-functions* interface-procedure generic-object)
     interface-procedure))
 
 (define (create-generic-procedure)
@@ -634,21 +615,21 @@
 		      (reject-recursive-calls?
 		       ;;Raise an error if a ":before" or ":after" method invokes the next method.
 		       (assertion-violation 'call-methods
-		      			    ":before or :after methods are forbidden to call the next method"))
+		      	 ":before or :after methods are forbidden to call the next method"))
 
 		      (primary-method-called?
 		       ;;We enter here only if a primary method  has been called and, in its body, a
 		       ;;call to CALL-NEXT-METHOD is evaluated.
 		       (when (null? applicable-primary-closures)
 		      	 (assertion-violation 'call-methods
-		      			      "called next method but no more :primary methods available"))
+		      	   "called next method but no more :primary methods available"))
 		       (apply-function/sts (consume-closure applicable-primary-closures)))
 
 		      ((null? applicable-primary-closures)
 		       ;;Raise an error if no applicable methods.
 		       (assertion-violation 'call-methods
-		      			    "no method defined for these argument classes"
-		      			    (map class-definition-name signature)))
+		      	 "no method defined for these argument classes"
+		      	 (map class-definition-name signature)))
 
 		      ((not (null? applicable-around-closures))
 		       ;;If  around methods  exist: we  apply them  first.  It  is expected  that an
@@ -663,9 +644,9 @@
 		       (set! reject-recursive-calls? #f)
 		       (set! primary-method-called? #t)
 		       (begin0
-		       	(apply-function/stx (consume-closure applicable-primary-closures) args)
-		       	(set! reject-recursive-calls? #t)
-		       	(for-each apply-function applicable-after-closures)))
+		       	   (apply-function/stx (consume-closure applicable-primary-closures) args)
+		       	 (set! reject-recursive-calls? #t)
+		       	 (for-each apply-function applicable-after-closures)))
 		      ))))
 	  (parameterize ((next-method-func-parm call-methods)
 			 (next-method-pred-parm is-a-next-method-available?))
@@ -690,7 +671,7 @@
   ;;method's function.
   ;;
   (map cdr
-    (list-sort
+       (list-sort
      (lambda (method1 method2)
        (%more-specific-method? method1 method2 call-signature))
      (filter
