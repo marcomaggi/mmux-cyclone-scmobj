@@ -615,21 +615,21 @@
 		      (reject-recursive-calls?
 		       ;;Raise an error if a ":before" or ":after" method invokes the next method.
 		       (assertion-violation 'call-methods
-		      	 ":before or :after methods are forbidden to call the next method"))
+		      			    ":before or :after methods are forbidden to call the next method"))
 
 		      (primary-method-called?
 		       ;;We enter here only if a primary method  has been called and, in its body, a
 		       ;;call to CALL-NEXT-METHOD is evaluated.
 		       (when (null? applicable-primary-closures)
 		      	 (assertion-violation 'call-methods
-		      	   "called next method but no more :primary methods available"))
+		      			      "called next method but no more :primary methods available"))
 		       (apply-function/stx (consume-closure applicable-primary-closures)))
 
 		      ((null? applicable-primary-closures)
 		       ;;Raise an error if no applicable methods.
 		       (assertion-violation 'call-methods
-		      	 "no method defined for these argument classes"
-		      	 (map class-definition-name signature)))
+		      			    "no method defined for these argument classes"
+		      			    (map class-definition-name signature)))
 
 		      ((not (null? applicable-around-closures))
 		       ;;If  around methods  exist: we  apply them  first.  It  is expected  that an
@@ -644,9 +644,9 @@
 		       (set! reject-recursive-calls? #f)
 		       (set! primary-method-called? #t)
 		       (begin0
-		       	   (apply-function/stx (consume-closure applicable-primary-closures) args)
-		       	 (set! reject-recursive-calls? #t)
-		       	 (for-each apply-function applicable-after-closures)))
+		       	(apply-function/stx (consume-closure applicable-primary-closures) args)
+		       	(set! reject-recursive-calls? #t)
+		       	(for-each apply-function applicable-after-closures)))
 		      ))))
 	  (parameterize ((next-method-func-parm call-methods)
 			 (next-method-pred-parm is-a-next-method-available?))

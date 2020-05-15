@@ -59,7 +59,7 @@ CLEANFILES		+=	\
 	build-lib/*.c		\
 	build-lib/*.meta
 
-CYCLONE_COMPILE_LIBS_FLAGS	= -I $(builddir)/build-lib -I $(srcdir)/lib
+CYCLONE_COMPILE_LIBS_FLAGS	= -I $(builddir)/build-lib
 CYCLONE_COMPILE_LIBS_LIB	= $(CYCLONE_COMPILER) $(CYCLONE_COMPILE_LIBS_FLAGS) $(CYCLONE_FLAGS)
 
 ## --------------------------------------------------------------------
@@ -102,13 +102,15 @@ sharedlib_SCRIPTS	= $(MMUX_CYCLONE_SCMOBJ_LIBS_LIBS)
 # understand how to use this interface for "make check".
 #
 
-MMUX_CYCLONE_SCMOBJ_TEST_SRCS	=	\
-	tests/test-version.scm
+MMUX_CYCLONE_SCMOBJ_CHECK_SRCS	=	\
+	tests/test-version.scm		\
+	tests/test-scmobj.scm
 
-MMUX_CYCLONE_SCMOBJ_TEST_PROGS	=	\
-	build-tests/test-version.exe
+MMUX_CYCLONE_SCMOBJ_CHECK_PROGS	=	\
+	build-tests/test-version.exe	\
+	build-tests/test-scmobj.exe
 
-EXTRA_DIST	+= $(MMUX_CYCLONE_SCMOBJ_TEST_SRCS)
+EXTRA_DIST	+= $(MMUX_CYCLONE_SCMOBJ_CHECK_SRCS)
 CLEANFILES	+=		\
 	build-tests/*.scm	\
 	build-tests/*.so	\
@@ -118,12 +120,13 @@ CLEANFILES	+=		\
 	build-tests/*.exe
 
 AM_TESTS_ENVIRONMENT	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY_PATH);
-#TESTS			= $(MMUX_CYCLONE_SCMOBJ_TEST_PROGS)
-TESTS			= build-tests/test-version.exe
+TESTS			= $(MMUX_CYCLONE_SCMOBJ_CHECK_PROGS)
 
-CYCLONE_COMPILE_TESTS_ENV	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY_PATH);
-CYCLONE_COMPILE_TESTS_FLAGS	= -I $(builddir)/build-lib -I $(srcdir)/lib
-CYCLONE_COMPILE_TESTS_PROG	= $(CYCLONE_COMPILE_TESTS_ENV) $(CYCLONE_COMPILER) $(CYCLONE_COMPILE_TESTS_FLAGS) $(CYCLONE_FLAGS)
+CYCLONE_COMPILE_CHECK_ENV	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY_PATH);
+CYCLONE_COMPILE_CHECK_FLAGS	= -I $(builddir)/build-lib
+CYCLONE_COMPILE_CHECK_PROG	= $(CYCLONE_COMPILE_CHECK_ENV) $(CYCLONE_COMPILER) $(CYCLONE_COMPILE_CHECK_FLAGS) $(CYCLONE_FLAGS)
+
+MMUX_CYCLONE_SCMOBJ_CHECK_PREREQ= build-lib/mmux.cyclone.checks.so build-tests/$(am__dirstamp)
 
 ## --------------------------------------------------------------------
 
@@ -131,11 +134,16 @@ build-tests/$(am__dirstamp):
 	@$(MKDIR_P) build-tests
 	@: > build-tests/$(am__dirstamp)
 
-build-tests/%.scm: tests/%.scm build-tests/$(am__dirstamp)
+build-lib/mmux.cyclone.checks.so: build-lib/mmux.cyclone.checks.sld build-tests/$(am__dirstamp)
+	$(CYCLONE_COMPILE_LIBS_LIB) $(<)
+
+## --------------------------------------------------------------------
+
+build-tests/%.scm: tests/%.scm $(MMUX_CYCLONE_SCMOBJ_CHECK_PREREQ)
 	cp $(<) $(@)
 
 build-tests/%: build-tests/%.scm
-	$(CYCLONE_COMPILE_TESTS_PROG) $(<)
+	$(CYCLONE_COMPILE_CHECK_PROG) $(<)
 
 build-tests/%.exe: build-tests/%
 	mv $(<) $(@)

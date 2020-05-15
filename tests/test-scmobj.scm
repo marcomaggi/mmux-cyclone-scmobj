@@ -24,6 +24,8 @@
 
 
 (import (scheme base)
+	(only (scheme write)
+	      display)
 	(mmux.cyclone.scmobj)
 	(mmux.cyclone.checks))
 
@@ -71,6 +73,8 @@
 
 ;; (printf "\nthis is p\n")
 ;; (pretty-print p)
+
+#|
 
 
 (parameterize ((check-test-name 'class-basic))
@@ -1253,6 +1257,7 @@
 
 
 ;;;; done
+|#
 
 (check-report)
 
