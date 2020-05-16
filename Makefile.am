@@ -11,12 +11,15 @@ CLEANFILES		=
 
 EXTRA_DIST		+= doc/mmux-cyclone-docs.style.css
 CLEANFILES		+= doc/mmux-cyclone-docs.css
-AM_MAKEINFOHTMLFLAGS	= --css-ref=mmux-cyclone-docs.css
 
-info_TEXINFOS		= doc/mmux-cyclone-scmobj.texi
-doc_mmck_scmobj_TEXINFOS =	\
-	doc/macros.texi		\
-	doc/lgpl-3.0.texi	\
+AM_MAKEINFOFLAGS	= --no-split
+AM_MAKEINFOHTMLFLAGS	= --split=node -c WORDS_IN_PAGE=0 --css-ref=mmux-cyclone-docs.css \
+	-c PRE_BODY_CLOSE="<p>This document describes version <tt>$(PACKAGE_VERSION)</tt> of <em>$(PACKAGE_NAME)</em>.</p>"
+
+info_TEXINFOS				= doc/mmux-cyclone-scmobj.texi
+doc_mmux_cyclone_scmobj_TEXINFOS	=	\
+	doc/macros.texi			\
+	doc/lgpl-3.0.texi		\
 	doc/fdl-1.3.texi
 
 ## --------------------------------------------------------------------
@@ -49,10 +52,14 @@ MMUX_CYCLONE_SCMOBJ_LIBS_LIBS		=		\
 	build-lib/mmux.cyclone.scmobj.helpers.so	\
 	build-lib/mmux.cyclone.scmobj.so
 
-MMUX_CYCLONE_SCMOBJ_LIBS_PREREQ	= build-lib/config.scm build-lib/$(am__dirstamp)
+MMUX_CYCLONE_SCMOBJ_LIBS_PREREQ		=		\
+	build-lib/config.scm				\
+	build-lib/$(am__dirstamp)
 
 EXTRA_DIST		+= $(MMUX_CYCLONE_SCMOBJ_LIBS_SRCS)
+
 CLEANFILES		+=	\
+	build-lib/$(am__dirstamp)			\
 	build-lib/*.sld		\
 	build-lib/*.so		\
 	build-lib/*.o		\
@@ -102,21 +109,25 @@ sharedlib_SCRIPTS	= $(MMUX_CYCLONE_SCMOBJ_LIBS_LIBS)
 # understand how to use this interface for "make check".
 #
 
-MMUX_CYCLONE_SCMOBJ_CHECK_SRCS	=	\
-	tests/test-version.scm		\
+MMUX_CYCLONE_SCMOBJ_CHECK_SRCS	=		\
+	tests/test-version.scm			\
 	tests/test-scmobj.scm
 
-MMUX_CYCLONE_SCMOBJ_CHECK_PROGS	=	\
-	build-tests/test-version.exe	\
+MMUX_CYCLONE_SCMOBJ_CHECK_PROGS	=		\
+	build-tests/test-version.exe		\
 	build-tests/test-scmobj.exe
 
-EXTRA_DIST	+= $(MMUX_CYCLONE_SCMOBJ_CHECK_SRCS)
-CLEANFILES	+=		\
-	build-tests/*.scm	\
-	build-tests/*.so	\
-	build-tests/*.o		\
-	build-tests/*.c		\
-	build-tests/*.meta	\
+EXTRA_DIST	+=				\
+	$(MMUX_CYCLONE_SCMOBJ_CHECK_SRCS)	\
+	lib/mmux.cyclone.checks.sld
+
+CLEANFILES	+=				\
+	build-tests/$(am__dirstamp)		\
+	build-tests/*.scm			\
+	build-tests/*.so			\
+	build-tests/*.o				\
+	build-tests/*.c				\
+	build-tests/*.meta			\
 	build-tests/*.exe
 
 AM_TESTS_ENVIRONMENT	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY_PATH);
@@ -148,9 +159,21 @@ build-tests/%: build-tests/%.scm
 build-tests/%.exe: build-tests/%
 	mv $(<) $(@)
 
+## --------------------------------------------------------------------
+
 .PHONY: test
 
 test:
 	for f in build-tests/*$(file)*.exe ; do $(AM_TESTS_ENVIRONMENT) $$f ; done
+
+
+#### installcheck rule
+
+MMUX_CYCLONE_INSTALLCHECK_ENV	=
+MMUX_CYCLONE_INSTALLCHECK_ENV	+= LD_LIBRARY_PATH=$(DESTDIR)$(libdir):$(LD_LIBRARY_PATH); export LD_LIBRARY_PATH;
+MMUX_CYCLONE_INSTALLCHECK_ENV	+= DYLD_LIBRARY_PATH=$(DESTDIR)$(libdir):$(DYLD_LIBRARY_PATH); export DYLD_LIBRARY_PATH;
+
+installcheck-local:
+	for f in $(TESTS) ; do $(MMUX_CYCLONE_INSTALLCHECK_ENV) $$f ; done
 
 ### end of file
