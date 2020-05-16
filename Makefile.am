@@ -66,7 +66,7 @@ CLEANFILES		+=	\
 	build-lib/*.c		\
 	build-lib/*.meta
 
-CYCLONE_COMPILE_LIBS_FLAGS	= -I $(builddir)/build-lib
+CYCLONE_COMPILE_LIBS_FLAGS	= -no-batch -I $(builddir)/build-lib
 CYCLONE_COMPILE_LIBS_LIB	= $(CYCLONE_COMPILER) $(CYCLONE_COMPILE_LIBS_FLAGS) $(CYCLONE_FLAGS)
 
 ## --------------------------------------------------------------------
@@ -134,7 +134,7 @@ AM_TESTS_ENVIRONMENT	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY
 TESTS			= $(MMUX_CYCLONE_SCMOBJ_CHECK_PROGS)
 
 CYCLONE_COMPILE_CHECK_ENV	= export LD_LIBRARY_PATH=$(builddir)/build-lib:$(LD_LIBRARY_PATH);
-CYCLONE_COMPILE_CHECK_FLAGS	= -I $(builddir)/build-lib
+CYCLONE_COMPILE_CHECK_FLAGS	= -no-batch -I $(builddir)/build-lib
 CYCLONE_COMPILE_CHECK_PROG	= $(CYCLONE_COMPILE_CHECK_ENV) $(CYCLONE_COMPILER) $(CYCLONE_COMPILE_CHECK_FLAGS) $(CYCLONE_FLAGS)
 
 MMUX_CYCLONE_SCMOBJ_CHECK_PREREQ= build-lib/mmux.cyclone.checks.so build-tests/$(am__dirstamp)
