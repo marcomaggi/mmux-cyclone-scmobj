@@ -87,7 +87,7 @@
   (syntax-rules ()
     ((_ (?var0 ?var ...) ?expr ?body0 ?body ...)
      (call-with-values
-	 (lamba () ?expr)
+	 (lambda () ?expr)
        (lambda (?var0 ?var ...)
 	 (begin ?body0 ?body ...)
 	 (values ?var0 ?var ...))))
@@ -101,14 +101,14 @@
     ;;
     ;; ((_ (?var0 ?var ... . ?vars) ?expr ?body0 ?body ...)
     ;;  (call-with-values
-    ;; 	 (lamba () ?expr)
+    ;; 	 (lambda () ?expr)
     ;;    (lambda (?var0 ?var ... . ?vars)
     ;; 	 (begin ?body0 ?body ...)
     ;; 	 (apply values ?var0 ?var ... ?vars))))
 
     ((_ ?vars ?expr ?body0 ?body ...)
      (call-with-values
-	 (lamba () ?expr)
+	 (lambda () ?expr)
        (lambda ?vars
 	 (begin ?body0 ?body ...)
 	 (apply values ?vars))))

@@ -64,6 +64,13 @@
     with-slots-set! with-slots-ref
     with-slots
 
+    ;; FIXME Private  syntactic bindings that need to  be exported because they are  used by macros.
+    ;; (Marco Maggi; May 16, 2020)
+    %scmobj-build-class-precedence-list
+    %scmobj-build-slot-list
+    %scmobj-make
+    %scmobj-slot
+
     ;; version functions
     mmux-cyclone-scmobj-package-major-version
     mmux-cyclone-scmobj-package-minor-version
@@ -91,7 +98,7 @@
 		   (eq? ?element elm))
        ?list))))
 
-(define (%build-class-precedence-list . superclasses)
+(define (%scmobj-build-class-precedence-list . superclasses)
   ;;Given a  list of  superclasses for class  <x>: Build and  return the
   ;;class precedence list for <x> to be used in multimethod dispatching.
   (if (null? superclasses)
@@ -102,7 +109,7 @@
 		    superclasses))
      eq?)))
 
-(define (%build-slot-list direct-slots . superclasses)
+(define (%scmobj-build-slot-list direct-slots . superclasses)
   ;;Given the  list of direct slot names  for class <x> and  its list of
   ;;superclasses: Build and return full list of slots for <x>.
   (if (null? superclasses)
@@ -274,7 +281,7 @@
      (define ?name
        `((:class . ,<builtin-class>)
 	 (:class-definition-name . ?name)
-	 (:class-precedence-list . ,(%build-class-precedence-list ?superclass ...))
+	 (:class-precedence-list . ,(%scmobj-build-class-precedence-list ?superclass ...))
 	 (:slots . ())
 	 (:direct-slots . ()))))
     ((_ ?name ?superclass)
@@ -306,13 +313,13 @@
 
 ;;;; class constructors
 
-(define-syntax %make-class
+(define-syntax %scmobj-make-class
   (syntax-rules ()
     ((_ ?name (?superclass ...) ?slot-spec ...)
      `((:class . ,<class>)
        (:class-definition-name . ?name)
-       (:class-precedence-list . ,(%build-class-precedence-list ?superclass ...))
-       (:slots                 . ,(%build-slot-list '(?slot-spec ...) ?superclass ...))
+       (:class-precedence-list . ,(%scmobj-build-class-precedence-list ?superclass ...))
+       (:slots                 . ,(%scmobj-build-slot-list '(?slot-spec ...) ?superclass ...))
        (:direct-slots          . (?slot-spec ...))))))
 
 (define-syntax make-class
@@ -327,7 +334,7 @@
     ((_)
      (make-class ()))
     ((_ (?superclass ...) ?slot-spec ...)
-     (%make-class :uninitialised (?superclass ...) ?slot-spec ...))))
+     (%scmobj-make-class :uninitialised (?superclass ...) ?slot-spec ...))))
 
 (define-syntax define-class
   ;;Build a new class object, defining a binding for it.  Give a name to
@@ -338,12 +345,12 @@
      (define-class ?name ()))
     ((_ ?name (?superclass ...) ?slot-spec ...)
      (define ?name
-       (%make-class ?name (?superclass ...) ?slot-spec ...)))))
+       (%scmobj-make-class ?name (?superclass ...) ?slot-spec ...)))))
 
 
 ;;;; instance constructors, low level
 
-(define (%make class-name class . init-args)
+(define (%scmobj-make class-name class . init-args)
   ;;This  is a standard  make function,  in the  style of  CLOS.  Build,
   ;;initialise and return a new class instance.
   ;;
@@ -375,20 +382,20 @@
 
 (define-syntax make
   ;;Build, initialise and return a  new class instance.  It is a wrapper
-  ;;for %MAKE.  This macro exists so  that we can specify the slot names
-  ;;without quoting them (as we have to do with %MAKE).
+  ;;for %SCMOBJ-MAKE.  This macro exists so  that we can specify the slot names
+  ;;without quoting them (as we have to do with %SCMOBJ-MAKE).
   ;;
   (syntax-rules (:slots)
     ((_ ?class (:slots (?key0 . ?value0) ...) ?key ?value ?thing ...)
      (make ?class (:slots (?key . ?value) (?key0 . ?value0) ...) ?thing ...))
     ((_ ?class (:slots (?key . ?value) ...))
-     (%make (quote ?class) ?class (%slot ?class (quote ?key) ?value) ...))
+     (%scmobj-make (quote ?class) ?class (%scmobj-slot ?class (quote ?key) ?value) ...))
     ((_ ?class ?key ?value ?thing ...)
      (make ?class (:slots (?key . ?value)) ?thing ...))
     ((_ ?class)
      (make ?class '()))))
 
-(define (%slot class key value)
+(define (%scmobj-slot class key value)
   ;;A slot builder used by the  MAKE syntax.  Make sure that the slot is
   ;;valid for the class.
   ;;
@@ -644,7 +651,7 @@
 		       (set! reject-recursive-calls? #f)
 		       (set! primary-method-called? #t)
 		       (begin0
-		       	(apply-function/stx (consume-closure applicable-primary-closures) args)
+		       	(apply-function/stx (consume-closure applicable-primary-closures))
 		       	(set! reject-recursive-calls? #t)
 		       	(for-each apply-function applicable-after-closures)))
 		      ))))
