@@ -69,7 +69,8 @@ implementing an object--oriented programming framework.  Cyclone is a Scheme-to-
 supporting the language features as defined in the ``Revised^7 Report on Scheme''.
 
 The package supports @posix{} platforms.  This package should work with Cyclone version
-@value{CYCLONE_VERSION}.
+@value{CYCLONE_VERSION}.  To run the test suite this package depends upon the external package:
+@mmux{} Cyclone Checks.
 
 This package is distributed under the terms of the @gnu{} Lesser General Public License (@lgpl{}).
 
@@ -178,7 +179,8 @@ implementing an object--oriented programming framework.  Cyclone is a Scheme-to-
 supporting the language features as defined in the ``Revised^7 Report on Scheme''.
 
 This package supports @posix{} platforms.  This package should work with Cyclone version
-@value{CYCLONE_VERSION}.
+@value{CYCLONE_VERSION}.  To run the test suite this package depends upon the external package:
+@mmux{} Cyclone Checks.
 
 The package installs the library @library{mmux.cyclone.scmobj} along with its import libraries; to
 require the library and import its syntactic bindings in a module we can do:
@@ -1811,6 +1813,10 @@ Cyclone can be downloaded from:
 The original code is available at (last checked May 13, 2020):
 
 @center @url{http://www.ccs.neu.edu/home/dorai/scmobj/scmobj.html}
+
+The package @mmux{} Cyclone Checks is available from:
+
+@center @url{https://github.com/marcomaggi/mmux-cyclone-checks/}
 
 @c page
 @node concept index

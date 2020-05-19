@@ -33,7 +33,8 @@ main purpose  of keeping the  source code simple and  understandable, so
 that it  can be taken  as starting  point for more  sophisticated object
 systems.
 
-  The package targets POSIX systems.
+  The package targets POSIX systems.  To run the test suite this package
+depends upon the external package: MMUX Cyclone Checks.
 
   The package uses the GNU Autotools  and it is tested, using Travis CI,
 on both Ubuntu GNU+Linux systems and OS X systems.
@@ -183,6 +184,10 @@ we can download Cyclone from:
 The original code is available at (last checked May 13, 2020):
 
 	 <http://www.ccs.neu.edu/home/dorai/scmobj/scmobj.html>
+
+The package MMUX Cyclone Checks is available from:
+
+	  <https://github.com/marcomaggi/mmux-cyclone-checks/>
 
 
 ### end of file
