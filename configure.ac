@@ -2,7 +2,7 @@
 #
 
 AC_PREREQ([2.69])
-MMUX_PKG_VERSIONS([0],[1],[0],[devel.1])
+MMUX_PKG_VERSIONS([0],[1],[0],[devel.2])
 AC_INIT([MMUX Cyclone Scmobj],[MMUX_PACKAGE_VERSION],
   [mrc.mgg@gmail.com],
   [mmux-cyclone-scmobj],[http://github.com/marcomaggi/mmux-cyclone-scmobj])
