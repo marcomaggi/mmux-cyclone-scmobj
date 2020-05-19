@@ -31,7 +31,8 @@
 @c To be used as @value{COPYRIGHT_YEARS} whenever we need to include the list of copyright years.
 @set COPYRIGHT_YEARS            2020
 
-@set CYCLONE_VERSION            0.17
+@set CYCLONE_VERSION                    0.17
+@set MMUX_CYCLONE_CHECKS_VERSION        0.1.0
 
 @c ------------------------------------------------------------
 
@@ -70,7 +71,7 @@ supporting the language features as defined in the ``Revised^7 Report on Scheme'
 
 The package supports @posix{} platforms.  This package should work with Cyclone version
 @value{CYCLONE_VERSION}.  To run the test suite this package depends upon the external package:
-@mmux{} Cyclone Checks.
+@mmux{} Cyclone Checks, at least version @value{MMUX_CYCLONE_CHECKS_VERSION}.
 
 This package is distributed under the terms of the @gnu{} Lesser General Public License (@lgpl{}).
 
@@ -180,7 +181,7 @@ supporting the language features as defined in the ``Revised^7 Report on Scheme'
 
 This package supports @posix{} platforms.  This package should work with Cyclone version
 @value{CYCLONE_VERSION}.  To run the test suite this package depends upon the external package:
-@mmux{} Cyclone Checks.
+@mmux{} Cyclone Checks, at least version @value{MMUX_CYCLONE_CHECKS_VERSION}.
 
 The package installs the library @library{mmux.cyclone.scmobj} along with its import libraries; to
 require the library and import its syntactic bindings in a module we can do:
@@ -465,14 +466,14 @@ has layout:
 
 
 @menu
-* class make::           Making classes
-* class chart::          A chart for predefined classes
-* class core::           Core class types.
-* class list::           List types.
-* class compound::       Non-list compound data types.
-* class numeric::        Numeric data types.
-* class port::           Port types.
-* class misc::           Miscellaneous types.
+* class make::                  Making classes
+* class chart::                 A chart for predefined classes
+* class core::                  Core class types.
+* class list::                  List types.
+* class compound::              Non-list compound data types.
+* class numeric::               Numeric data types.
+* class port::                  Port types.
+* class misc::                  Miscellaneous types.
 @end menu
 
 @c page
@@ -583,37 +584,28 @@ Defining classes using @func{define-class}:
    |                            |
    |               --> <port> --+-> <textual-port>
    |              |
-   |              +--> <record> --> <condition>
+   |              +--> <record>
    |              |
    |              +--> <string>
    |              |
    |              +--> <char>
    v              |
-<builtin-class> --+-------+-------+-----------+
-   |              |       |       |           |
-   v              v       v       v           v
-<number>        <pair> <vector> <bytevector> <hashtable>
+<builtin-class> --+-------+-------+
+   |              |       |       |
+   v              v       v       v
+<number>        <pair> <vector> <bytevector>
    |              |
    v              |
 <complex>         +--------------+------------
    |              |              |            |
    v              v              v            v
-<real-valued>   <list>    <dotted-list> <circular-list>
+<real>          <list>    <dotted-list> <circular-list>
    |
    v
-<real> ------> <flonum>
+<rational>
    |
    v
-<rational-valued>
-   |         |
-   v         v
-<rational> <integer-valued>
-   |
-   v
-<integer>
-   |
-   v
-<fixnum>
+<exact-integer>
 @end example
 
 @c page
@@ -671,11 +663,6 @@ Class for values that satisfy @func{bytevector?}.
 @end deftp
 
 
-@deftp Class @aclass{hashtable}
-Class for values that satisfy @func{hashtable?}.
-@end deftp
-
-
 @deftp Class @aclass{record}
 Class for values that satisfy @func{record?}.
 @end deftp
@@ -695,43 +682,18 @@ Class for values that satisfy @func{complex?}.
 @end deftp
 
 
-@deftp Class @aclass{real-valued}
-Class for values that satisfy @func{real-valued?}.
-@end deftp
-
-
 @deftp Class @aclass{real}
 Class for values that satisfy @func{real?}.
 @end deftp
 
 
 @deftp Class @aclass{rational}
-Class for values that satisfy @func{integer?}.
+Class for values that satisfy @func{rational?}.
 @end deftp
 
 
-@deftp Class @aclass{rational-valued}
-Class for values that satisfy @func{integer?}.
-@end deftp
-
-
-@deftp Class @aclass{integer-valued}
-Class for values that satisfy @func{integer?}.
-@end deftp
-
-
-@deftp Class @aclass{integer}
-Class for values that satisfy @func{integer?}.
-@end deftp
-
-
-@deftp Class @aclass{fixnum}
-Class for values that satisfy @func{fixnum?}.
-@end deftp
-
-
-@deftp Class @aclass{flonum}
-Class for values that satisfy @func{flonum?}.
+@deftp Class @aclass{exact-integer}
+Class for values that satisfy @func{exact-integer?}.
 @end deftp
 
 @c page
@@ -778,11 +740,6 @@ inheritance:
 @c page
 @node class misc
 @section Miscellaneous types
-
-
-@deftp {Class} <condition>
-Class for values that satisfy @func{condition?}.
-@end deftp
 
 
 @deftp {Class} <string>
@@ -1009,12 +966,12 @@ arguments, the most specific method with respect to the arguments'
 classes is chosen.
 
 @menu
-* generic application::  How generic functions and methods
+* generic application::         How generic functions and methods
                                 are invoked.
-* generic dispatching::  How methods are dispatched.
-* generic define::       Defining generic functions and methods.
-* generic next::         Invoking the next method.
-* generic examples::     Examples of method dispatching.
+* generic dispatching::         How methods are dispatched.
+* generic define::              Defining generic functions and methods.
+* generic next::                Invoking the next method.
+* generic examples::            Examples of method dispatching.
 @end menu
 
 @c page
