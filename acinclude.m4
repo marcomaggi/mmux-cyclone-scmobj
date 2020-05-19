@@ -10,5 +10,6 @@ m4_include(meta/autoconf/ax-require-defined.m4)
 
 m4_include(meta/autoconf/mmux-split-version.m4)
 m4_include(meta/autoconf/mmux-cyclone-scheme.m4)
+m4_include(meta/autoconf/mmux-cyclone-scheme-check-library.m4)
 
 ### end of file

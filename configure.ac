@@ -49,6 +49,7 @@ AC_CACHE_SAVE
 #### external libraries
 
 MMUX_CYCLONE_SCHEME
+MMUX_CYCLONE_SCHEME_CHECK_LIBRARY([MMUX_CYCLONE_CHECKS],[mmux.cyclone.checks],,AC_MSG_ERROR([MMUX Cyclone Checks not available],1))
 
 AC_CACHE_SAVE
 
