@@ -18,8 +18,7 @@ systems.
 The package targets  POSIX systems.  To run the test  suite this package
 depends upon the external package: MMUX Cyclone Checks.
 
-The package uses the GNU Autotools and it is tested, using Travis CI, on
-both Ubuntu GNU+Linux systems and OS X systems.
+The package uses the GNU Autotools and it is tested.
 
 This package  should work  with Cyclone  version 0.17.
 
